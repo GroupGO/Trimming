@@ -136,8 +136,10 @@ def split_merged_data_set(input_path, output_directory, overwrite=True):
     assert isinstance(output_directory, str), 'Output Folder name must be of type string.'
     create_empty_folder(output_directory)
     output_paths = generate_output_paths(input_path, output_directory)
+    print('Checking Directories...')
     if not all(os.path.exists(path) for path in output_paths) or overwrite:
         print('Started paired-end read file splitting.')
+        start_time = time.clock()
         output_files = [open(output, 'w') for output in output_paths]
         input_file = open(input_path, 'r')
         for header, sequence, quality in extract_record(input_file):
@@ -145,12 +147,11 @@ def split_merged_data_set(input_path, output_directory, overwrite=True):
         input_file.close()
         for single_file in output_files:
             single_file.close()
+        print('Completed paired-end read file splitting in %s seconds.' % (time.clock() - start_time))
     else:
         print('Splitting Aborted. Files already present and not overwritten.')
 
 
 if __name__ == '__main__':
     input_file_path, output_folder_path, overwrite = get_command_line_arguments(['', '', False])
-    start_time = time.clock()
     split_merged_data_set(input_file_path, output_folder_path, overwrite)
-    print('Completed paired-end read file splitting in %s seconds.' % (time.clock() - start_time))
